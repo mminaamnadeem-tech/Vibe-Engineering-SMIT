@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Subway Surfers Lite 3D - Cyber Rush</title>
+  <meta name="description" content="Ultra-lightweight high-performance 3D subway endless runner game in WebGL. Jump, slide, surf trains and collect power-ups!">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 3D WebGL Canvas Viewport -->
+  <div id="game-container"></div>
+
+  <!-- HUD & UI Overlay -->
+  <div id="ui-layer">
+    <!-- Top HUD Bar -->
+    <header class="hud-top">
+      <div class="hud-group">
+        <div class="hud-card">
+          <span class="hud-label">Score</span>
+          <span id="hud-score" class="hud-value">0</span>
+        </div>
+        <div id="hud-multiplier" class="hud-badge">2X BOOST</div>
+      </div>
+
+      <!-- Active Powerup Countdowns -->
+      <div id="hud-powerups"></div>
+
+      <div class="hud-group">
+        <div class="hud-card hud-coins-box">
+          <span class="coin-icon">🪙</span>
+          <span id="hud-coins" class="hud-value">0</span>
+        </div>
+        <button id="btn-pause" class="btn-icon" title="Pause Game (P / Esc)">⏸️</button>
+        <button id="btn-mute" class="btn-icon" title="Toggle Sound">🔊</button>
+      </div>
+    </header>
+  </div>
+
+  <!-- Start Menu Screen -->
+  <section id="screen-start" class="screen">
+    <div class="modal-content">
+      <div class="title-container">
+        <h1 class="game-title">Subway Surfer<br><span style="font-size: 0.7em; color: #00f3ff;">Lite 3D</span></h1>
+        <p class="game-subtitle">⚡ Cyber Railway Rush</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stats-box">
+          <span>High Score</span>
+          <strong id="start-highscore">0</strong>
+        </div>
+        <div class="stats-box">
+          <span>Vault Coins</span>
+          <strong id="start-coins" style="color: var(--color-gold);">0</strong>
+        </div>
+      </div>
+
+      <div class="menu-actions">
+        <button id="btn-play" class="btn btn-primary" style="font-size: 1.2rem; padding: 16px;">
+          ▶ Tap / Press Space to Run
+        </button>
+        <button id="btn-shop" class="btn btn-secondary">
+          🛒 Character & Board Locker
+        </button>
+      </div>
+
+      <div class="controls-guide">
+        <div class="guide-title">How to Play (Keyboard / Touch)</div>
+        <div class="guide-grid">
+          <span>⬅️ / ➡️ / Swipe : Change Lane</span>
+          <span>⬆️ / W / Swipe Up : Jump & Train Roof</span>
+          <span>⬇️ / S / Swipe Down : Slide & Fast Fall</span>
+          <span>🚀 Double Tap / Space : Hoverboard Shield</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pause Modal -->
+  <div id="modal-pause" class="modal hidden">
+    <div class="modal-content">
+      <h2 style="font-family: var(--font-display); font-size: 2rem; margin-bottom: 20px;">Game Paused</h2>
+      <div class="menu-actions">
+        <button id="btn-resume" class="btn btn-primary">▶ Resume Run</button>
+        <button id="btn-restart-pause" class="btn btn-secondary">🔄 Restart Run</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shop & Locker Modal -->
+  <div id="modal-shop" class="modal hidden">
+    <div class="modal-content wide">
+      <div class="shop-header">
+        <h2 style="font-family: var(--font-display); font-size: 1.8rem;">Runner Locker</h2>
+        <div class="shop-coins-badge">
+          🪙 <span id="shop-total-coins">0</span>
+        </div>
+      </div>
+
+      <h3 style="text-align: left; font-size: 0.9rem; color: var(--color-text-dim); margin-bottom: 8px; text-transform: uppercase;">Characters</h3>
+      <div id="shop-skins-list" class="shop-grid"></div>
+
+      <h3 style="text-align: left; font-size: 0.9rem; color: var(--color-text-dim); margin-bottom: 8px; text-transform: uppercase;">Hoverboards</h3>
+      <div id="shop-boards-list" class="shop-grid"></div>
+
+      <button id="btn-close-shop" class="btn btn-secondary" style="width: 100%;">Close Locker</button>
+    </div>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div id="modal-gameover" class="modal hidden">
+    <div class="modal-content">
+      <h2 class="gameover-title">Crash!</h2>
+      <div id="go-new-record" class="new-record-badge" style="display: none;">🏆 NEW ALL-TIME RECORD!</div>
+
+      <div class="go-stats-grid">
+        <div class="go-stat-card">
+          <span>Run Score</span>
+          <strong id="go-final-score">0</strong>
+        </div>
+        <div class="go-stat-card highlight">
+          <span>Coins Picked</span>
+          <strong id="go-coins-run">0</strong>
+        </div>
+        <div class="go-stat-card">
+          <span>Best Record</span>
+          <strong id="go-high-score">0</strong>
+        </div>
+        <div class="go-stat-card highlight">
+          <span>Total Vault</span>
+          <strong id="go-total-coins">0</strong>
+        </div>
+      </div>
+
+      <div class="menu-actions">
+        <button id="btn-play-again" class="btn btn-primary" style="font-size: 1.15rem; padding: 15px;">
+          🔄 Play Again (Space)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Game Modules -->
+  <script src="js/audio.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
